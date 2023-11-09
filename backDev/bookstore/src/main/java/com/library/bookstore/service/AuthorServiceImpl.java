@@ -1,30 +1,30 @@
 package com.library.bookstore.service;
 
-import com.library.bookstore.dao.AuthorsRepository;
-import com.library.bookstore.entity.Authors;
+import com.library.bookstore.repository.AuthorRepository;
+import com.library.bookstore.entity.Author;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class AuthorsServiceImpl implements AuthorsService{
+public class AuthorServiceImpl implements AuthorService {
 
-    private AuthorsRepository authorsRepository;
+    private AuthorRepository authorsRepository;
 
-    public AuthorsServiceImpl(AuthorsRepository TheAuthorsRepository) {
+    public AuthorServiceImpl(AuthorRepository TheAuthorsRepository) {
         this.authorsRepository = TheAuthorsRepository;
     }
 
     @Override
-    public List<Authors> findAll() {
+    public List<Author> findAll() {
         return authorsRepository.findAll();
     }
 
     @Override
-    public Authors findById(int theId) {
-        Optional<Authors> result = authorsRepository.findById(theId);
-        Authors theAuthors = null;
+    public Author findById(int theId) {
+        Optional<Author> result = authorsRepository.findById(theId);
+        Author theAuthors = null;
 
         if(result.isPresent()){
             theAuthors = result.get();
@@ -37,7 +37,7 @@ public class AuthorsServiceImpl implements AuthorsService{
     }
 
     @Override
-    public Authors save(Authors theEmployee) {
+    public Author save(Author theEmployee) {
         return authorsRepository.save(theEmployee);
     }
 

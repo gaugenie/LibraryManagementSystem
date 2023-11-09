@@ -1,27 +1,26 @@
-package com.library.bookstore.rest;
+package com.library.bookstore.controller;
 
-import com.library.bookstore.entity.Authors;
-import com.library.bookstore.service.AuthorsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.library.bookstore.entity.Author;
+import com.library.bookstore.service.AuthorService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-public class AuthorsRestController {
-    private AuthorsService authorsService;
+public class AuthorRestController {
+    private AuthorService authorsService;
 
-    public AuthorsRestController(AuthorsService TheAuthorsService) {
+    public AuthorRestController(AuthorService TheAuthorsService) {
         this.authorsService = TheAuthorsService;
     }
     @GetMapping("/authors")
-    public List<Authors> findAll(){
+    public List<Author> findAll(){
         return authorsService.findAll();
     }
 
     @PostMapping("/authors")
-    public Authors addAuthors(@RequestBody Authors theAuthors){
+    public Author addAuthors(@RequestBody Author theAuthors){
 
         // also just in case they pass an id in JSON ... set id to 0
         // this is to force a save of new item ... instead of update
@@ -31,7 +30,7 @@ public class AuthorsRestController {
     }
 
     @PutMapping("/authors")
-    public Authors updateEmployee(@RequestBody Authors theAuthors){
+    public Author updateEmployee(@RequestBody Author theAuthors){
 
         return authorsService.save(theAuthors);
     }
@@ -39,12 +38,12 @@ public class AuthorsRestController {
     @DeleteMapping("/employees/{authorsId}")
     public String deleteEmployee(@PathVariable int authorsId){
 
-        Authors tempEmployee = authorsService.findById(authorsId);
+        Author tempEmployee = authorsService.findById(authorsId);
 
         // throw exception if null
 
         if(tempEmployee == null){
-            throw new RuntimeException("Authors id not found - " + authorsId);
+            throw new RuntimeException("Author id not found - " + authorsId);
         }
         authorsService.deleteById(authorsId);
 
