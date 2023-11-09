@@ -19,7 +19,12 @@ CREATE TABLE `authors` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
-
+INSERT INTO `authors` VALUES 
+	(1,'Leslie','Andrews','1985-01-16','she was famious who studied world war'),
+	(2,'Emma','Baumgarten','1970-10-25','she was famious who studied world war'),
+	(3,'Avani','Gupta','1965-09-16','she was famious who studied world war'),
+	(4,'Yuri','Petrov','1948-02-19','she was famious who studied world war'),
+	(5,'Juan','Vega','1965-03-17','she was famious who studied world war');
 #
 # Starting with MySQL 8.0.4, the MySQL team changed the 
 # default authentication plugin for MySQL server 
