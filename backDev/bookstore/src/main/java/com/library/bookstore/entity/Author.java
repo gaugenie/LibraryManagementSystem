@@ -15,10 +15,9 @@ import java.util.Date;
 public class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     private String firstName;
     private String lastName;
     private Date birthDate;
     private String biography;
-
 }
