@@ -5,7 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -20,4 +22,6 @@ public class Author {
     private String lastName;
     private Date birthDate;
     private String biography;
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL , fetch = FetchType.LAZY)
+    private List<Book> books = new ArrayList<>();
 }

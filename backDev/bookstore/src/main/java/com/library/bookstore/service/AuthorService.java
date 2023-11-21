@@ -31,18 +31,26 @@ public class AuthorService {
     public Author createAuthor(Author TheAuthor){
         return authorRepository.save(TheAuthor);
     }
-     public Author updateAuthor(Long id, Author TheAuthor){
-         Author existingAuthor = getAuthorById(id);
-         existingAuthor.setBiography(TheAuthor.getBiography() !=null ? TheAuthor.getBiography() : existingAuthor.getBiography());
-         existingAuthor.setFirstName(TheAuthor.getFirstName() !=null ? TheAuthor.getFirstName() : existingAuthor.getFirstName());
-         existingAuthor.setLastName(TheAuthor.getLastName() !=null ? TheAuthor.getLastName() : existingAuthor.getLastName());
-         existingAuthor.setBirthDate(TheAuthor.getBirthDate() !=null ? TheAuthor.getBirthDate() : existingAuthor.getBirthDate());
-         return authorRepository.save(TheAuthor);
+
+     public void updateAuthor(Long id, Author TheAuthor) throws RessourceNotFoundException {
+        Optional<Author> authorWithId = authorRepository.findById(id);
+        if(authorWithId.isPresent()){
+            Author authorToSave = authorWithId.get();
+            authorToSave.setBiography(TheAuthor.getBiography() !=null ? TheAuthor.getBiography() : authorToSave.getBiography());
+            authorToSave.setFirstName(TheAuthor.getFirstName() !=null ? TheAuthor.getFirstName() : authorToSave.getFirstName());
+            authorToSave.setLastName(TheAuthor.getLastName() !=null ? TheAuthor.getLastName() : authorToSave.getLastName());
+            authorToSave.setBirthDate(TheAuthor.getBirthDate() !=null ? TheAuthor.getBirthDate() : authorToSave.getBirthDate());
+            authorRepository.save(authorToSave);
+        }
      }
 
-     public void deleteAuthor(Long id){
-        Author existingUser = getAuthorById(id);
-         authorRepository.delete(existingUser);
+     public void deleteAuthor(Long id) throws RessourceNotFoundException{
+         Optional<Author> authorWithId = authorRepository.findById(id);
+         if(!authorWithId.isPresent()){
+             throw new RessourceNotFoundException("the Author with the id " +id+ " is not found");
+         }else {
+             authorRepository.deleteById(id);
+         }
     }
 }
 
