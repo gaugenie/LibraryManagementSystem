@@ -1,11 +1,12 @@
 package com.library.bookstore.entity;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
 import java.util.Date;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,16 +16,14 @@ public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String bookTitle;
+    private String bookName;
     @Column(name="isbn_number")
     private String isbn;
     private Date datePublication;
-    private String editor;
-    private String type;
+    private String category;
     private float price;
     private String descritpion;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL , fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
     private Author author;
-
 }
