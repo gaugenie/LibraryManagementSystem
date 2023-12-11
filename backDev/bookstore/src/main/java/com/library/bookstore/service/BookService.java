@@ -1,6 +1,7 @@
 package com.library.bookstore.service;
 
 import com.library.bookstore.entity.Book;
+import com.library.bookstore.execptions.BookNotFoundException;
 import com.library.bookstore.execptions.RessourceNotFoundException;
 import com.library.bookstore.repository.BookRepository;
 import jakarta.transaction.Transactional;
@@ -30,19 +31,14 @@ public class BookService {
         return books;
     }
 
-    // retrieve book by id
-    public Book getBookById(Long bookId) {
-        Book book = getBook(bookId);
-        return book;
-    }
     public Book getBook(Long bookId) {
         Optional<Book> theBook = Optional.ofNullable(bookRepository.findById(bookId)
-                .orElseThrow(() -> new RessourceNotFoundException("Book with id " + bookId + " is not find ")));
+                .orElseThrow(() -> new BookNotFoundException(bookId)));
         return theBook.get();
     }
 
     @Transactional
-    public Book createBook(Book theBook){
+    public Book addBook(Book theBook){
         Book book = new Book();
         book.setBookName(theBook.getBookName());
         book.setIsbn(theBook.getIsbn());
@@ -51,14 +47,10 @@ public class BookService {
         book.setCategory(theBook.getCategory());
         book.setDatePublication(theBook.getDatePublication());
         book.setPrice(theBook.getPrice());
-        if (theBook.getAuthor() == null) {
-            throw new RessourceNotFoundException("Author for this book is not found");
-        }
-        Book bookToSave = bookRepository.save(book);
-        return bookToSave;
+        return bookRepository.save(book);
     }
     @Transactional
-    public void updateBook(Long id, Book TheBook) throws RessourceNotFoundException {
+    public void editBook(Long id, Book TheBook) throws RessourceNotFoundException {
         Optional<Book> bookWithId = bookRepository.findById(id);
         if(bookWithId.isPresent()){
             Book bookToSave = bookWithId.get();

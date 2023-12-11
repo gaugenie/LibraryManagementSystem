@@ -1,5 +1,6 @@
 package com.library.bookstore.entity;
 
+import com.library.bookstore.entity.dto.BookDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +15,7 @@ import java.util.Date;
 @Table(name="book")
 public class Book {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String bookName;
     @Column(name="isbn_number")
@@ -23,7 +24,20 @@ public class Book {
     private String category;
     private float price;
     private String descritpion;
-    @ManyToOne(cascade = CascadeType.ALL , fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id")
+
+    @ManyToOne
     private Author author;
+
+    public static Book from(BookDto bookDto){
+        Book book = new Book();
+        book.setBookName(bookDto.getBookName());
+        book.setIsbn(bookDto.getIsbn());
+        book.setPrice(bookDto.getPrice());
+        book.setDescritpion(bookDto.getDescritpion());
+        book.setCategory(bookDto.getCategory());
+        book.setDatePublication(bookDto.getDatePublication());
+        book.setPrice(bookDto.getPrice());
+        return book;
+    }
+
 }

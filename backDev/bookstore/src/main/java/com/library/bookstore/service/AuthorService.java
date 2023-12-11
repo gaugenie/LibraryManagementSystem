@@ -1,5 +1,8 @@
 package com.library.bookstore.service;
 
+import com.library.bookstore.entity.Book;
+import com.library.bookstore.execptions.AuthorNotFoundException;
+import com.library.bookstore.execptions.BookAlreadyAssignedException;
 import com.library.bookstore.execptions.RessourceNotFoundException;
 import com.library.bookstore.repository.AuthorRepository;
 import com.library.bookstore.entity.Author;
@@ -9,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -18,17 +22,21 @@ public class AuthorService {
     @Autowired
     private final AuthorRepository authorRepository;
     @Autowired
-    public AuthorService(AuthorRepository TheAuthorRepository) {
+    private final BookService bookService;
+    @Autowired
+    public AuthorService(AuthorRepository TheAuthorRepository, BookService theBookService) {
         this.authorRepository = TheAuthorRepository;
+        this.bookService = theBookService;
     }
 
-    // retrieve Author by id
+    // retrieve Author
     public Author getAuthor(Long authorId) {
         Optional<Author> theAuthor = Optional.ofNullable(authorRepository.findById(authorId)
-                .orElseThrow(() -> new RessourceNotFoundException("Author with id " + authorId + " is not find ")));
+                .orElseThrow(() -> new AuthorNotFoundException(authorId)));
         return theAuthor.get();
     }
-    // retrieve Author by id
+
+    // retrieve All authors
     public List<Author> getAllAuthors(){
         List<Author> authors = StreamSupport
                 .stream(authorRepository.findAll().spliterator(), false)
@@ -36,22 +44,17 @@ public class AuthorService {
         return authors;
     }
 
-    public Author getAuthorById(Long authorId) {
-        Author theAuthor = getAuthor(authorId);
-        return theAuthor;
-    }
-
-    public Author createAuthor(Author theAuthor){
-        Author Author = new Author();
-        Author.setFirstName(theAuthor.getFirstName());
-        Author.setLastName(theAuthor.getLastName());
-        Author.setBirthDate(theAuthor.getBirthDate());
-        Author.setBirthDate(theAuthor.getBirthDate());
+    public Author addAuthor(Author theAuthor){
+        Author author = new Author();
+        author.setFirstName(theAuthor.getFirstName());
+        author.setLastName(theAuthor.getLastName());
+        author.setBirthDate(theAuthor.getBirthDate());
+        author.setBiography(theAuthor.getBiography());
         return authorRepository.save(theAuthor);
     }
 
     @Transactional
-     public void updateAuthor(Long id, Author TheAuthor) throws RessourceNotFoundException {
+     public void editAuthor(Long id, Author TheAuthor) throws RessourceNotFoundException {
         Optional<Author> authorWithId = authorRepository.findById(id);
         if(authorWithId.isPresent()){
             Author authorToEdit = authorWithId.get();
@@ -66,10 +69,31 @@ public class AuthorService {
      public void deleteAuthor(Long id) throws RessourceNotFoundException{
          Optional<Author> authorWithId = authorRepository.findById(id);
          if(!authorWithId.isPresent()){
-             throw new RessourceNotFoundException("the Book with the id " +id+ " is not found");
+             throw new AuthorNotFoundException(id);
          }else {
              authorRepository.deleteById(id);
          }
+
      }
+    @Transactional
+    public  Author addBookToAuthor(Long authorId, Long bookId){
+        Author author = getAuthor(authorId);
+        Book book = bookService.getBook(bookId);
+
+        if (Objects.nonNull(book.getAuthor())) {
+        throw new BookAlreadyAssignedException(bookId,
+                book.getAuthor().getId());
+        }
+        author.addBook(book);
+        return author;
+    }
+    @Transactional
+    public Author removeBookFromAuthor(Long authorId, Long bookId){
+        Author author = getAuthor(authorId);
+        Book book = bookService.getBook(bookId);
+        author.removeBook(book);
+        return author;
+
+    }
 }
 
