@@ -1,12 +1,15 @@
 package com.library.bookstore.service;
 
+import com.library.bookstore.constants.BookConstants;
+import com.library.bookstore.dto.AuthorDto;
 import com.library.bookstore.entity.Book;
-import com.library.bookstore.execptions.AuthorNotFoundException;
-import com.library.bookstore.execptions.BookAlreadyAssignedException;
-import com.library.bookstore.execptions.RessourceNotFoundException;
+import com.library.bookstore.execptions.*;
+import com.library.bookstore.mapper.AuthorMapper;
 import com.library.bookstore.repository.AuthorRepository;
 import com.library.bookstore.entity.Author;
+import com.library.bookstore.repository.BookRepository;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,43 +21,37 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+@AllArgsConstructor
 public class AuthorService {
     @Autowired
-    private final AuthorRepository authorRepository;
+    private  AuthorRepository authorRepository;
     @Autowired
-    private final BookService bookService;
-    @Autowired
-    public AuthorService(AuthorRepository TheAuthorRepository, BookService theBookService) {
-        this.authorRepository = TheAuthorRepository;
-        this.bookService = theBookService;
+    private  BookService bookService;
+
+    public void createAuthor(AuthorDto authorDto){
+        Author author = AuthorMapper.mapToAuthor(authorDto, new Author());
+        authorRepository.save(author);
     }
 
-    // retrieve Author
-    public Author getAuthor(Long authorId) {
-        Optional<Author> theAuthor = Optional.ofNullable(authorRepository.findById(authorId)
-                .orElseThrow(() -> new AuthorNotFoundException(authorId)));
-        return theAuthor.get();
-    }
-
-    // retrieve All authors
-    public List<Author> getAllAuthors(){
-        List<Author> authors = StreamSupport
+    public List<Author> getAllAuthor(){
+        return StreamSupport
                 .stream(authorRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
-        return authors;
     }
 
-    public Author addAuthor(Author theAuthor){
-        Author author = new Author();
-        author.setFirstName(theAuthor.getFirstName());
-        author.setLastName(theAuthor.getLastName());
-        author.setBirthDate(theAuthor.getBirthDate());
-        author.setBiography(theAuthor.getBiography());
-        return authorRepository.save(theAuthor);
+    public Author getAuthorById(Long id) {
+        return authorRepository.findById(id).orElseThrow(() ->
+                new AuthorNotFoundException(id));
+    }
+
+    public Author deleteAuthor(Long id){
+        Author author = getAuthorById(id);
+        authorRepository.deleteById(id);
+        return author;
     }
 
     @Transactional
-     public void editAuthor(Long id, Author TheAuthor) throws RessourceNotFoundException {
+    public void editAuthor(Long id, Author TheAuthor) throws RessourceNotFoundException {
         Optional<Author> authorWithId = authorRepository.findById(id);
         if(authorWithId.isPresent()){
             Author authorToEdit = authorWithId.get();
@@ -64,36 +61,25 @@ public class AuthorService {
             authorToEdit.setBirthDate(TheAuthor.getBirthDate() !=null ? TheAuthor.getBirthDate() : authorToEdit.getBirthDate());
             authorRepository.save(authorToEdit);
         }
-     }
+    }
 
-     public void deleteAuthor(Long id) throws RessourceNotFoundException{
-         Optional<Author> authorWithId = authorRepository.findById(id);
-         if(!authorWithId.isPresent()){
-             throw new AuthorNotFoundException(id);
-         }else {
-             authorRepository.deleteById(id);
-         }
-
-     }
     @Transactional
-    public  Author addBookToAuthor(Long authorId, Long bookId){
-        Author author = getAuthor(authorId);
-        Book book = bookService.getBook(bookId);
-
-        if (Objects.nonNull(book.getAuthor())) {
-        throw new BookAlreadyAssignedException(bookId,
-                book.getAuthor().getId());
+    public Author addBookToAuthor(Long authorId, Long bookId){
+        Author author = getAuthorById(authorId);
+        Book book = bookService.getBookById(bookId);
+        if(Objects.nonNull(book.getAuthor())){
+            throw new BookAlreadyExistException(bookId, book.getAuthor().getId());
         }
-        author.addBook(book);
+        author.getBooks().add(book);
         return author;
     }
+
     @Transactional
     public Author removeBookFromAuthor(Long authorId, Long bookId){
-        Author author = getAuthor(authorId);
-        Book book = bookService.getBook(bookId);
-        author.removeBook(book);
+        Author author = getAuthorById(authorId);
+        Book book = bookService.getBookById(bookId);
+        author.getBooks().remove(book);
         return author;
-
     }
 }
 

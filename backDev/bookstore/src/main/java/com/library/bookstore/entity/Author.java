@@ -1,11 +1,13 @@
 package com.library.bookstore.entity;
 
-import com.library.bookstore.entity.dto.AuthorDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -13,40 +15,20 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Entity
 @Table(name="author")
-//TODO: Renomme class avec entity
-public class Author {
+public class Author extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String firstName;
     private String lastName;
-    private Date birthDate;
+    private LocalDateTime birthDate;
     private String biography;
+    private String email;
 
-    // TODO: fetch type lazy
-    @OneToMany(
-            cascade = CascadeType.ALL
-    )
-    @JoinColumn(name = "author_id")
+    // one to many unidirectional mapping
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "author")
     private List<Book> books = new ArrayList<>();
-
-    //TODO : reimplement
-    public void addBook(Book book){
-        books.add(book);
-    }
-    public void removeBook(Book book){
-        books.remove(book);
-    }
-
-    //TODO: deplacer dans un mapper
-    public static Author from(AuthorDto authorDto){
-        Author author = new Author();
-        author.setFirstName(authorDto.getFirstName());
-        author.setLastName(authorDto.getLastName());
-        author.setBirthDate(authorDto.getBirthDate());
-        author.setBiography(authorDto.getBiography());
-        return author;
-    }
 }

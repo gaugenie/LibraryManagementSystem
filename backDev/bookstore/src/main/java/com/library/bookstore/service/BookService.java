@@ -1,75 +1,72 @@
 package com.library.bookstore.service;
 
+
+import com.library.bookstore.dto.BookDto;
 import com.library.bookstore.entity.Book;
 import com.library.bookstore.execptions.BookNotFoundException;
 import com.library.bookstore.execptions.RessourceNotFoundException;
+import com.library.bookstore.repository.AuthorRepository;
 import com.library.bookstore.repository.BookRepository;
 import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+
 @Service
+@AllArgsConstructor
 public class BookService {
     @Autowired
-    private final BookRepository bookRepository;
+    private BookRepository bookRepository;
     @Autowired
-    public BookService(BookRepository bookRepository) {
-        this.bookRepository = bookRepository;
+    private AuthorRepository authorRepository;
+
+    public Book getBookById(Long bookId) {
+        return bookRepository.findById(bookId).orElseThrow(() ->
+                new BookNotFoundException(bookId));
     }
 
-    // retrieve all books
-    public List<Book> getAllBooks(){
-        List<Book> books = StreamSupport
+    @Transactional
+    public void creatBook(BookDto theBookDto){
+        Book book = new Book();
+        book.setBookTitle(theBookDto.getBookTitle());
+        book.setIsbn(theBookDto.getIsbn());
+        book.setPrice(theBookDto.getPrice());
+        book.setPrice(theBookDto.getPrice());
+        book.setDescritpion(theBookDto.getBookDescription());
+        bookRepository.save(book);
+    }
+
+    public List<Book> getAllBook(){
+        return StreamSupport
                 .stream(bookRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
-        return books;
     }
 
-    public Book getBook(Long bookId) {
-        Optional<Book> theBook = Optional.ofNullable(bookRepository.findById(bookId)
-                .orElseThrow(() -> new BookNotFoundException(bookId)));
-        return theBook.get();
+    public Book deleteBook(Long id){
+        Book book = getBookById(id);
+        bookRepository.deleteById(id);
+        return book;
     }
 
     @Transactional
-    public Book addBook(Book theBook){
-        Book book = new Book();
-        book.setBookName(theBook.getBookName());
-        book.setIsbn(theBook.getIsbn());
-        book.setPrice(theBook.getPrice());
-        book.setDescritpion(theBook.getDescritpion());
-        book.setCategory(theBook.getCategory());
-        book.setDatePublication(theBook.getDatePublication());
-        book.setPrice(theBook.getPrice());
-        return bookRepository.save(book);
-    }
-    @Transactional
-    public void editBook(Long id, Book TheBook) throws RessourceNotFoundException {
+    public BookDto editBook(Long id, BookDto TheBookDto) throws RessourceNotFoundException {
         Optional<Book> bookWithId = bookRepository.findById(id);
         if(bookWithId.isPresent()){
             Book bookToSave = bookWithId.get();
-            bookToSave.setBookName(TheBook.getBookName() !=null ? TheBook.getBookName() : bookToSave.getBookName());
-            bookToSave.setCategory(TheBook.getCategory() !=null ? TheBook.getCategory() : bookToSave.getCategory());
-            bookToSave.setDescritpion(TheBook.getDescritpion() !=null ? TheBook.getDescritpion() : bookToSave.getDescritpion());
-            bookToSave.setIsbn(TheBook.getIsbn() !=null ? TheBook.getIsbn() : bookToSave.getIsbn());
-            bookToSave.setDatePublication(TheBook.getDatePublication() !=null ? TheBook.getDatePublication() : bookToSave.getDatePublication());
-            bookToSave.setDatePublication(TheBook.getDatePublication() !=null ? TheBook.getDatePublication() : bookToSave.getDatePublication());
+            bookToSave.setBookTitle(TheBookDto.getBookTitle() !=null ? TheBookDto.getBookTitle() : bookToSave.getBookTitle());
+            bookToSave.setDescritpion(TheBookDto.getBookDescription() !=null ? TheBookDto.getBookDescription() : bookToSave.getDescritpion());
+            bookToSave.setIsbn(TheBookDto.getIsbn() !=null ? TheBookDto.getIsbn() : bookToSave.getIsbn());
+            bookToSave.setEditor(TheBookDto.getEditor() !=null ? TheBookDto.getEditor() : bookToSave.getEditor());
+            bookToSave.setPrice(TheBookDto.getPrice() != 0 ? TheBookDto.getPrice() : bookToSave.getPrice());
             bookRepository.save(bookToSave);
         }
-    }
 
-    public void deleteBook(Long id) throws RessourceNotFoundException{
-        Optional<Book> bookWithId = bookRepository.findById(id);
-        if(!bookWithId.isPresent()){
-            throw new RessourceNotFoundException("the Book with the id " +id+ " is not found");
-        }else {
-            bookRepository.deleteById(id);
-        }
+        return TheBookDto;
     }
 }
