@@ -1,31 +1,51 @@
 package com.library.bookstore.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+// TODO: 02/01/2024  change the import * to specific import
+import lombok.*;
 
-import java.util.Date;
-@Data
+import java.util.Objects;
+
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Entity
 @Table(name="book")
-public class Book extends BaseEntity {
+public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String bookTitle;
+    @Column(nullable = false)
+    private String bookName;
     @Column(name="isbn_number")
     private String isbn;
-    private Date datePublication;
+    @Column(nullable = false)
+    private String datePublication;
+    // TODO: 02/01/2024 change String de datePublication for Localdatime
+    @Column(nullable = false)
     private String editor;
+    @Column(nullable = false)
     private String type;
-    private float price;
-    private String descritpion;
+    @Column(nullable = false)
+    private String price;
+    // TODO: 02/01/2024  change String of price to Bigdecimal
+    @Column(nullable = false)
+    private String description;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="author_id", referencedColumnName = "id")
+    @JoinColumn(name="author_id", referencedColumnName = "id", nullable = false)
     private Author author;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Book book = (Book) o;
+        return Objects.equals(id, book.id);
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

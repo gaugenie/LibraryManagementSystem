@@ -3,7 +3,6 @@ package com.library.bookstore.controller;
 import com.library.bookstore.constants.BookConstants;
 import com.library.bookstore.dto.BookDto;
 import com.library.bookstore.dto.ResponseDto;
-import com.library.bookstore.entity.Book;
 import com.library.bookstore.service.BookService;
 
 import lombok.AllArgsConstructor;
@@ -14,47 +13,49 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController
-@RequestMapping("/api/v1/books")
+@RequestMapping("/api/v1")
 @AllArgsConstructor
 public class BookRestController {
     @Autowired
     private BookService bookService;
 
-    @PostMapping("/create")
-    public ResponseEntity<ResponseDto> createSimpleBook(@RequestBody BookDto theBookDto){
-        bookService.creatBook(theBookDto);
+    @PostMapping("/authors/{authorId}/books")
+    public ResponseEntity<ResponseDto> createBook(@PathVariable("authorId") Long authorId,
+                                                  @RequestBody BookDto bookDto){
+        BookDto book =  bookService.createBook(authorId, bookDto);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new ResponseDto(BookConstants.STATUS_201, BookConstants.MESSAGE_201));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Book> getBookById(@PathVariable Long id){
-        Book books = bookService.getBookById(id);
-        return new ResponseEntity<>( books, HttpStatus.OK);
+    @GetMapping("/authors/{authorId}/books")
+    public List<BookDto> getBooksByAuthorId(@PathVariable("authorId") Long authorId){
+
+        return bookService.getBooksByAuthorId(authorId);
     }
 
-    @GetMapping
-    public ResponseEntity<List<Book>> getAllBooks(){
-        List<Book> books = bookService.getAllBook();
-        return new ResponseEntity<>( books , HttpStatus.OK);
-    }
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseDto> deleteBook(@PathVariable Long id){
-        Book book = bookService.deleteBook(id);
-        return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(new ResponseDto(BookConstants.STATUS_200, BookConstants.MESSAGE_200));
+    @GetMapping("/authors/{authorId}/books/{id}")
+    public ResponseEntity<BookDto> getBookById(@PathVariable("authorId") Long authorId,
+                                               @PathVariable("id") Long bookId){
+            BookDto bookDto = bookService.getBookById(authorId,bookId );
+        return new ResponseEntity<>(bookDto, HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ResponseDto> editBook(@PathVariable Long id,
-                                                @RequestBody BookDto theBookTdo){
-       BookDto editBook =  bookService.editBook(id, theBookTdo);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(new ResponseDto(BookConstants.STATUS_201, BookConstants.MESSAGE_201));
+    @PutMapping("/authors/{authorId}/books/{id}")
+    public ResponseEntity<BookDto> updateBook(@PathVariable("authorId") Long authorId,
+                                              @PathVariable("id") Long bookId,
+                                              @RequestBody BookDto bookDto){
+        BookDto updatedComment = bookService.updateBook(authorId,bookId, bookDto );
+
+        return new ResponseEntity<>(updatedComment, HttpStatus.OK);
     }
 
+    @DeleteMapping("/authors/{authorId}/books/{id}")
+    public ResponseEntity<String> deleteBook(@PathVariable("authorId") Long authorId,
+                                              @PathVariable("id") Long bookId){
+      bookService.deleteBook(authorId,bookId );
+        return new ResponseEntity<>("book deleted successfully", HttpStatus.OK);
+    }
 }
