@@ -1,99 +1,82 @@
 package com.library.bookstore.service;
 
-import com.library.bookstore.entity.Book;
-import com.library.bookstore.execptions.AuthorNotFoundException;
-import com.library.bookstore.execptions.BookAlreadyAssignedException;
-import com.library.bookstore.execptions.RessourceNotFoundException;
+
+import com.library.bookstore.dto.AuthorDto;
+import com.library.bookstore.execptions.*;
 import com.library.bookstore.repository.AuthorRepository;
 import com.library.bookstore.entity.Author;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
+@RequiredArgsConstructor
 public class AuthorService {
-    @Autowired
+
     private final AuthorRepository authorRepository;
-    @Autowired
-    private final BookService bookService;
-    @Autowired
-    public AuthorService(AuthorRepository TheAuthorRepository, BookService theBookService) {
-        this.authorRepository = TheAuthorRepository;
-        this.bookService = theBookService;
+
+    private final ModelMapper modelMapper;
+
+    // create author
+    @Transactional
+    public AuthorDto createAuthor(AuthorDto authorDto){
+
+        // convert PostDto to entity Post
+        Author author = modelMapper.map(authorDto, Author.class);
+        //
+        Author newAuthor = authorRepository.save(author);
+        // convert entity to postDto
+        AuthorDto authorResponse = modelMapper.map(newAuthor, AuthorDto.class);
+
+        return authorResponse;
     }
 
-    // retrieve Author
-    public Author getAuthor(Long authorId) {
-        Optional<Author> theAuthor = Optional.ofNullable(authorRepository.findById(authorId)
-                .orElseThrow(() -> new AuthorNotFoundException(authorId)));
-        return theAuthor.get();
+    // get all author
+    @Transactional(readOnly = true)
+    public List<AuthorDto> getAllAuthor(){
+        List<Author> authors = authorRepository.findAll();
+        // TODO: 02/01/2024 change AuthorMapper to modelMapper and install Sonar
+        return authors.stream().map((author) -> modelMapper.map(author, AuthorDto.class)).toList();
     }
+    // todo dans change method de service
 
-    // retrieve All authors
-    public List<Author> getAllAuthors(){
-        List<Author> authors = StreamSupport
-                .stream(authorRepository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
-        return authors;
-    }
+    // TODO: 02/01/2024 Change ModelMapper to Mapstruct
 
-    public Author addAuthor(Author theAuthor){
-        Author author = new Author();
-        author.setFirstName(theAuthor.getFirstName());
-        author.setLastName(theAuthor.getLastName());
-        author.setBirthDate(theAuthor.getBirthDate());
-        author.setBiography(theAuthor.getBiography());
-        return authorRepository.save(theAuthor);
+    @Transactional(readOnly = true)
+    public AuthorDto getAuthorById(Long id) {
+        Author author = authorRepository.findById(id).orElseThrow(
+                () -> new RessourceNotFoundException("Could not find Author with id : "+id));
+        return modelMapper.map(author, AuthorDto.class);
     }
 
     @Transactional
-     public void editAuthor(Long id, Author TheAuthor) throws RessourceNotFoundException {
-        Optional<Author> authorWithId = authorRepository.findById(id);
-        if(authorWithId.isPresent()){
-            Author authorToEdit = authorWithId.get();
-            authorToEdit.setBiography(TheAuthor.getBiography() !=null ? TheAuthor.getBiography() : authorToEdit.getBiography());
-            authorToEdit.setFirstName(TheAuthor.getFirstName() !=null ? TheAuthor.getFirstName() : authorToEdit.getFirstName());
-            authorToEdit.setLastName(TheAuthor.getLastName() !=null ? TheAuthor.getLastName() : authorToEdit.getLastName());
-            authorToEdit.setBirthDate(TheAuthor.getBirthDate() !=null ? TheAuthor.getBirthDate() : authorToEdit.getBirthDate());
-            authorRepository.save(authorToEdit);
-        }
-     }
+    public AuthorDto updateAuthor(AuthorDto authorDto, Long id){
 
-     public void deleteAuthor(Long id) throws RessourceNotFoundException{
-         Optional<Author> authorWithId = authorRepository.findById(id);
-         if(!authorWithId.isPresent()){
-             throw new AuthorNotFoundException(id);
-         }else {
-             authorRepository.deleteById(id);
-         }
+        // get post by id from database
+        Author author = authorRepository.findById(id).orElseThrow(() ->
+                new AuthorNotFoundException(id));
 
-     }
-    @Transactional
-    public  Author addBookToAuthor(Long authorId, Long bookId){
-        Author author = getAuthor(authorId);
-        Book book = bookService.getBook(bookId);
+        author.setFirstName(authorDto.getFirstName());
+        author.setLastName(authorDto.getLastName());
+        author.setBirthDate(authorDto.getBirthDate());
+        author.setEmail(authorDto.getEmail());
+        author.setBiography(authorDto.getBiography());
 
-        if (Objects.nonNull(book.getAuthor())) {
-        throw new BookAlreadyAssignedException(bookId,
-                book.getAuthor().getId());
-        }
-        author.addBook(book);
-        return author;
+        Author updateAuthor = authorRepository.save(author);
+
+        return modelMapper.map(updateAuthor, AuthorDto.class);
     }
     @Transactional
-    public Author removeBookFromAuthor(Long authorId, Long bookId){
-        Author author = getAuthor(authorId);
-        Book book = bookService.getBook(bookId);
-        author.removeBook(book);
-        return author;
+    public void deleteAuthorById(Long id){
+        Author author = authorRepository.findById(id).orElseThrow(() ->
+                new AuthorNotFoundException(id));
+        authorRepository.delete(author);
 
     }
+
 }
 
