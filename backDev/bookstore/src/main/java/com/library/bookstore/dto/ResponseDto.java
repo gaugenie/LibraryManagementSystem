@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 public class ResponseDto {
-
     private String statusCode;
     private String statusMessage;
 }

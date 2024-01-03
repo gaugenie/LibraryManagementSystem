@@ -1,52 +1,58 @@
 package com.library.bookstore.controller;
 
-import com.library.bookstore.entity.Author;
-import com.library.bookstore.execptions.RessourceNotFoundException;
+import com.library.bookstore.constants.BookConstants;
+import com.library.bookstore.dto.ResponseDto;
+import com.library.bookstore.dto.AuthorDto;
 import com.library.bookstore.service.AuthorService;
-import org.springframework.data.domain.Pageable;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/authors")
+@AllArgsConstructor
 public class AuthorRestController {
-    private AuthorService authorService;
+    @Autowired
+    private  AuthorService authorService;
 
-    public AuthorRestController(AuthorService TheAuthorService) {
-        this.authorService = TheAuthorService;
+    @PostMapping
+    public ResponseEntity<ResponseDto> createAuthor(@RequestBody AuthorDto authorDto){
+        authorService.createAuthor(authorDto);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new ResponseDto(BookConstants.STATUS_201, BookConstants.MESSAGE_201));
     }
+
     @GetMapping
-    public List<Author> getAllAuthor(Pageable page){
-        return authorService.getAllAuthor(page).toList();
+    public ResponseEntity<List<AuthorDto>> getAllAutthors(){
+        return new ResponseEntity<>(authorService.getAllAuthor(), HttpStatus.OK);
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<Author> getAuthorById(@PathVariable Long id){
-        return new ResponseEntity<>(authorService.getAuthorById(id), HttpStatus.OK);
+    public ResponseEntity<AuthorDto> getAuthorById(@PathVariable("id") Long id){
+        AuthorDto authorDto = authorService.getAuthorById(id);
+        return new ResponseEntity<>( authorDto, HttpStatus.OK);
     }
-    @PostMapping("createAuthor")
-    public ResponseEntity<Author> createAuthor(@Valid @RequestBody Author theAuthor){
-        return new ResponseEntity<Author>(authorService.createAuthor(theAuthor), HttpStatus.CREATED);
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseDto> createAuthor(@PathVariable("id") Long id,
+                                                    @RequestBody AuthorDto authorDto){
+      AuthorDto authorDto1 =  authorService.updateAuthor(authorDto, id);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new ResponseDto(BookConstants.STATUS_201, BookConstants.MESSAGE_201));
     }
-    @PutMapping("updateAuthor/{id}")
-    public ResponseEntity<?> updateAuthor(@RequestBody Author theAuthor, @PathVariable Long id){
-        try {
-            authorService.updateAuthor(id, theAuthor);
-            return new ResponseEntity<> ("Update author with id " +id, HttpStatus.OK);
-        } catch (RessourceNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseDto> deleteAuthor(@PathVariable("id") Long id){
+        authorService.deleteAuthorById(id);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseDto(BookConstants.STATUS_200, BookConstants.MESSAGE_200));
     }
-    @DeleteMapping("deleteAuthor/{id}")
-    public ResponseEntity<?>deleteAuthorById(@PathVariable Long id){
-        try {
-            authorService.deleteAuthor(id);
-            return new ResponseEntity<>("Successfully Author deleted with id " +id ,HttpStatus.OK);
-        } catch (RessourceNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
-    }
+
 }
