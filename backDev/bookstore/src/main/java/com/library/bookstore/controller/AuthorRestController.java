@@ -1,14 +1,13 @@
 package com.library.bookstore.controller;
 
-import com.library.bookstore.constants.BookConstants;
-import com.library.bookstore.dto.ResponseDto;
 import com.library.bookstore.dto.AuthorDto;
 import com.library.bookstore.service.AuthorService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -16,19 +15,18 @@ import java.util.List;
 @RequestMapping("/api/v1/authors")
 @AllArgsConstructor
 public class AuthorRestController {
-    @Autowired
-    private  AuthorService authorService;
+
+    private final AuthorService authorService;
 
     @PostMapping
-    public ResponseEntity<ResponseDto> createAuthor(@RequestBody AuthorDto authorDto){
-        authorService.createAuthor(authorDto);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(new ResponseDto(BookConstants.STATUS_201, BookConstants.MESSAGE_201));
+    public ResponseEntity<AuthorDto> createAuthor(@Valid @RequestBody AuthorDto authorDto){
+        AuthorDto createdAuthor =  authorService.createAuthor(authorDto);
+        return new ResponseEntity<>(createdAuthor,HttpStatus.CREATED);
     }
 
     @GetMapping
     public ResponseEntity<List<AuthorDto>> getAllAutthors(){
+
         return new ResponseEntity<>(authorService.getAllAuthor(), HttpStatus.OK);
     }
 
@@ -39,20 +37,22 @@ public class AuthorRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseDto> createAuthor(@PathVariable("id") Long id,
-                                                    @RequestBody AuthorDto authorDto){
+    public ResponseEntity<AuthorDto> createAuthor(@PathVariable("id") Long id,
+                                                    @Valid @RequestBody AuthorDto authorDto){
       AuthorDto authorDto1 =  authorService.updateAuthor(authorDto, id);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(new ResponseDto(BookConstants.STATUS_201, BookConstants.MESSAGE_201));
+        return new ResponseEntity<>(authorDto1,HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseDto> deleteAuthor(@PathVariable("id") Long id){
+    public ResponseEntity<String> deleteAuthor(@PathVariable("id") Long id){
         authorService.deleteAuthorById(id);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(new ResponseDto(BookConstants.STATUS_200, BookConstants.MESSAGE_200));
+        return new ResponseEntity<>("Author deleted successfully", HttpStatus.OK);
     }
 
+    @PostMapping("/upload-authors-data")
+    public ResponseEntity<String> uploadAuthorsData(@RequestParam("file") MultipartFile file){
+        authorService.saveAuthorToDatabase(file);
+
+        return new ResponseEntity<>("Author Upload successfully", HttpStatus.CREATED);
+    }
 }

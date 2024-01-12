@@ -1,4 +1,5 @@
 package com.library.bookstore.mapper;
+/*
 
 import com.library.bookstore.dto.AuthorDto;
 import com.library.bookstore.entity.Author;
@@ -14,7 +15,6 @@ public class AuthorMapper {
     // convert entity Author to AuthorDto
     public static AuthorDto mapToAuthorDto(Author author) {
         AuthorDto authorDto = new AuthorDto();
-        authorDto.setId(author.getId());
         authorDto.setLastName(author.getLastName());
         authorDto.setFirstName(author.getFirstName());
         authorDto.setEmail(author.getEmail());
@@ -26,7 +26,6 @@ public class AuthorMapper {
     // convert AuthorDto to entity Author
     public static Author mapToEntityAuthor( AuthorDto authorDto) {
         Author author = new Author();
-        author.setId(authorDto.getId());
         author.setBiography(authorDto.getBiography());
         author.setLastName(authorDto.getLastName());
         author.setFirstName(authorDto.getFirstName());
@@ -35,3 +34,6 @@ public class AuthorMapper {
         return author;
     }
 }
+
+ */
+
