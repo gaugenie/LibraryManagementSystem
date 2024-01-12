@@ -1,5 +1,5 @@
 package com.library.bookstore.constants;
-
+/*
 public class BookConstants {
 
     private BookConstants() {
@@ -17,3 +17,5 @@ public class BookConstants {
     // public static final String  MESSAGE_500 = "An error occurred. Please try again or contact Dev team";
 
 }
+
+ */

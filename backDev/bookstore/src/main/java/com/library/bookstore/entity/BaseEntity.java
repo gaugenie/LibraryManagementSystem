@@ -1,5 +1,5 @@
 package com.library.bookstore.entity;
-
+/*
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
@@ -25,3 +25,5 @@ public class BaseEntity {
     @Column(insertable = false)
     private String updatedBy;
 }
+
+ */

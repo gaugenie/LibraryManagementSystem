@@ -4,10 +4,10 @@ import jakarta.persistence.*;
 // TODO: 02/01/2024  change the import * to specific import
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -27,15 +27,14 @@ public class Book {
     @Column(name="isbn_number")
     private String isbn;
     @Column(nullable = false)
-    private String datePublication;
-    // TODO: 02/01/2024 change String de datePublication for Localdatime
+    private LocalDate datePublication;
+
     @Column(nullable = false)
     private String editor;
     @Column(nullable = false)
     private String type;
     @Column(nullable = false)
-    private String price;
-    // TODO: 02/01/2024  change String of price to Bigdecimal
+    private float price;
     @Column(nullable = false)
     private String description;
 
