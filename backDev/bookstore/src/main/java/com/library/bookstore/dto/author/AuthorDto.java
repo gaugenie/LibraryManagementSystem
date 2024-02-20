@@ -1,4 +1,4 @@
-package com.library.bookstore.dto;
+package com.library.bookstore.dto.author;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -25,8 +25,6 @@ public class AuthorDto {
 
     @Email
     private String email;
-
-    private Set<BookDto> books;
 }
 
 // Todo creation d'un DTO update , create, ex: CreateAuthorDto , UpdateAuthorDto, AuthorDetailsDto
