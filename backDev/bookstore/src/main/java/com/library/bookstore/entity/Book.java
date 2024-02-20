@@ -1,7 +1,6 @@
 package com.library.bookstore.entity;
 
 import jakarta.persistence.*;
-// TODO: 02/01/2024  change the import * to specific import
 import lombok.*;
 
 import java.time.LocalDate;
@@ -16,6 +15,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+
 @Entity
 @Table(name="book")
 public class Book {

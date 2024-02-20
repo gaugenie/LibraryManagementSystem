@@ -5,6 +5,7 @@ import com.library.bookstore.service.BookService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -17,10 +18,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@Slf4j
 public class BookRestController {
 
     private final BookService bookService;
-    private static final  Logger LOG = LoggerFactory.getLogger(BookRestController.class);
 
     @PostMapping("/authors/{authorId}/books")
     public ResponseEntity<BookDto> createBook(@PathVariable("authorId") Long authorId,
@@ -32,7 +33,7 @@ public class BookRestController {
 
     @GetMapping("/books")
     public ResponseEntity<List<BookDto>> getAllBooks() {
-        LOG.info("Starting get all Books method with info log level");
+        log.info("recuperation des books");
         return new ResponseEntity<>(bookService.getAllBooks(), HttpStatus.OK);
     }
 

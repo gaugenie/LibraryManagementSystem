@@ -21,8 +21,10 @@
         </rollingPolicy>
     </appender>
 
-    <root level = "DEBUG">
+    <root level = "WARNING">
         <appender-ref ref = "SIZE_TIME_OUTPUT_FILE"/>
         <appender-ref ref = "STDOUT"/>
     </root>
 </configuration>
+
+        <!-- Faire sortir le thread et la classe -->
