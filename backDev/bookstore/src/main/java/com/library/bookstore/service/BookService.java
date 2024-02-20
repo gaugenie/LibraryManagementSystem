@@ -25,11 +25,13 @@ public class BookService {
 
     private final AuthorRepository authorRepository;
 
+    private final BookAutoMapper bookAutoMapper;
+
     // create book
     @Transactional
     public BookDto createBook(Long authorId, BookDto bookDto ){
 
-        Book book = BookAutoMapper.MAPPER.mapToBook(bookDto);
+        Book book = bookAutoMapper.mapToBook(bookDto);
 
         // retrieve Author entity by id
         Author author = authorRepository.findById(authorId).orElseThrow(() ->
@@ -42,13 +44,13 @@ public class BookService {
         Book newBook = bookRepository.save(book);
 
         // return as bookDto with Mapper
-        return BookAutoMapper.MAPPER.mapToBookDto(newBook);
+        return bookAutoMapper.mapToBookDto(newBook);
     }
 
     @Transactional(readOnly = true)
     public List<BookDto> getAllBooks(){
         List<Book> books= bookRepository.findAll();
-        return books.stream().map((book) -> BookAutoMapper.MAPPER.mapToBookDto(book)).toList();
+        return books.stream().map((book) -> bookAutoMapper.mapToBookDto(book)).toList();
     }
 
     @Transactional(readOnly = true)
@@ -57,7 +59,7 @@ public class BookService {
         // retrieve Book by authorId
         List<Book> books= bookRepository.findByAuthorId(authorId);
 
-        return books.stream().map(book -> BookAutoMapper.MAPPER.mapToBookDto(book)).toList();
+        return books.stream().map(book -> bookAutoMapper.mapToBookDto(book)).toList();
     }
 
     @Transactional(readOnly = true)
@@ -75,7 +77,7 @@ public class BookService {
         if (!book.getAuthor().getId().equals(author.getId())) {
             throw new BookApiException(HttpStatus.BAD_REQUEST, "Book does not belong to author");
         }
-        return BookAutoMapper.MAPPER.mapToBookDto(book);
+        return bookAutoMapper.mapToBookDto(book);
     }
 
     @Transactional
@@ -104,7 +106,7 @@ public class BookService {
 
         Book updatedBook = bookRepository.save(book);
 
-        return BookAutoMapper.MAPPER.mapToBookDto(updatedBook);
+        return bookAutoMapper.mapToBookDto(updatedBook);
     }
 
     @Transactional
